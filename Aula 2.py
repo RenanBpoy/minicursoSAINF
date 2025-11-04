@@ -5,12 +5,20 @@ API_KEY = "65ab5c61c86be48dc53215e49d57f4a1"
 BASE_URL = "https://api.themoviedb.org/3"
 IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 
-def get_movies(endpoint, params={}):
-    url = f"{BASE_URL}/{endpoint}"
-    params["api_key"] = API_KEY
-    params["language"] = "pt-BR"
-    r = requests.get(url, params=params)
-    return r.json().get("results", [])
+def get_movies(endpoint, pages=5, params={}):
+    all_results = []
+    for page in range(1, pages + 1):
+        url = f"{BASE_URL}/{endpoint}"
+        params["api_key"] = API_KEY
+        params["language"] = "pt-BR"
+        params["page"] = page
+        r = requests.get(url, params=params)
+        if r.status_code == 200:
+            results = r.json().get("results", [])
+            all_results.extend(results)
+        else:
+            break
+    return all_results
 
 def get_movie_details(movie_id):
     url = f"{BASE_URL}/movie/{movie_id}"
